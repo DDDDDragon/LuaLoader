@@ -17,9 +17,12 @@ namespace LuaLoader
     {
         public static Lua state = new Lua();
         public static List<Assembly> Assemblies = new List<Assembly>();
+        public static ItemLuaLoader itemLoader = new ItemLuaLoader();
         public override void Load()
         {
             Assemblies.Add(typeof(Vector2).Assembly);
+
+            itemLoader.init();
 
             state.LoadCLRPackage();
             state.State.Encoding = Encoding.UTF8;

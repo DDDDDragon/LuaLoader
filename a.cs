@@ -43,7 +43,6 @@ namespace LuaLoader
 		{
             if (File.Exists("C:\\Users\\ASUS\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\lua.lua"))
 			{
-				StreamReader sr = new StreamReader("C:\\Users\\ASUS\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\lua.lua");
 				string str = File.ReadAllText("C:\\Users\\ASUS\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\lua.lua", Encoding.UTF8);
 				if (str != "")
 				{
