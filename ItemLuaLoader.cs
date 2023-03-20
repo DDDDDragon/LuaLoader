@@ -21,19 +21,19 @@ namespace LuaLoader
 	        {
 		        if(item.name != "")
 		        {
-		             if(File.Exists($"{ItemsPath}\\{item.name}.lua"))
-				     {
+		            if(File.Exists($"{ItemsPath}\\{item.name}.lua"))
+				    {
 						 
-					 }
+					}
 
-		}
-	    }
+		        }
+	        }
         }
     }
     public class LuaItem
     {
-	public string name;
-	public string discription;
+	    public string name;
+	    public string discription;
     }
 
 }
