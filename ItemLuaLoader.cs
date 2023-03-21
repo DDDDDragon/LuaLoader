@@ -10,11 +10,15 @@ namespace LuaLoader
     public class ItemLuaLoader
     {
         private static string ItemsPath = ModLoader.ModPath + "\\LuaLoader\\Items";
-	public Dictionary<string, string> Lua;
+	    public List<LuaItem> items;
+        public void registerLuaFunc()
+        {
+            LuaLoader.state.RegisterFunction();
+        }
         public void init()
         {
             if (!Directory.Exists(ItemsPath)) Directory.CreateDirectory(ItemsPath);
-		    lua = new Dictionary<string, string>();
+		    items = new List<LuaItem>();
             var db = new LiteDatabase($"{ItemsPath}\\Items.ldb");
             var Items = db.GetCollection<LuaItem>();
 	        foreach(var item in Items)
@@ -23,7 +27,10 @@ namespace LuaLoader
 		        {
 		            if(File.Exists($"{ItemsPath}\\{item.name}.lua"))
 				    {
-						 
+                        var lua = File.ReadAllText($"{ItemsPath}\\{item.name}.lua");
+						item.lua = lua;
+                        items.Add(item);
+                        LuaLoader.state.DoString(lua);
 					}
 
 		        }
@@ -34,6 +41,7 @@ namespace LuaLoader
     {
 	    public string name;
 	    public string discription;
+        public string lua;
     }
 
 }
