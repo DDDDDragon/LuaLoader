@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<Import Condition="Exists('..\tModLoader.targets')" Project="..\tModLoader.targets" />
 	<ItemGroup Condition="!Exists('..\tModLoader.targets')">
-		<Reference Include="Libraries\**\*.dll" Private="false" />
+		<Reference Include="Libraries\*.dll" Private="false" />
 	</ItemGroup>
 	<PropertyGroup>
 		<AssemblyName>LuaLoader</AssemblyName>
