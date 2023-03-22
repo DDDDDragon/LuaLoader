@@ -23,7 +23,10 @@ namespace LuaLoader
             Assemblies.Add(typeof(Vector2).Assembly);
 
             itemLoader.init();
-            
+            foreach(var item in itemLoader.items)
+            {
+                
+            }
 
             state.LoadCLRPackage();
             state.State.Encoding = Encoding.UTF8;
