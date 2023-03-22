@@ -40,13 +40,17 @@ namespace LuaLoader
         {
             var db = new LiteDataBase($"{ItemPath}\\Item.ldb");
             var Items = db.GetCollection<LuaItem>();
+            items.Clear();
             foreach(var item in Items)
             {
                 if(item.name != "")
                 {
-                    if(File.Exists(|$"{ItemsPath}\\{item.name}.lua"))
+                    if(File.Exists($"{ItemsPath}\\{item.name}.lua"))
                     {
-                        
+                        var lua = File.ReadAllText($"{ItemsPath}\\{item.name}.lua");
+                        item.lua = lua;
+                        items.Add(item);
+                        LuaLoader.state.DoString(lua);
                     }
                 }
             } 
