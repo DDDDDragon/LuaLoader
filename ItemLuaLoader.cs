@@ -36,6 +36,21 @@ namespace LuaLoader
 		        }
 	        }
         }
+        public void reloadItemsLua()
+        {
+            var db = new LiteDataBase($"{ItemPath}\\Item.ldb");
+            var Items = db.GetCollection<LuaItem>();
+            foreach(var item in Items)
+            {
+                if(item.name != "")
+                {
+                    if(File.Exists(|$"{ItemsPath}\\{item.name}.lua"))
+                    {
+                        
+                    }
+                }
+            } 
+        }
     }
     public class LuaItem
     {
