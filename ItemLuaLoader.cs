@@ -92,6 +92,12 @@ namespace LuaLoader
             Main.NewText(GetType().Name);
             base.UpdateInventory(player);
         }
+        public override void SetDefaults()
+        {
+            LuaLoader.state["Item"] = Item;
+            LuaLoader.state.DoString($"SetDefault_testItem()");
+            base.SetDefaults();
+        }
     }
 }
 
