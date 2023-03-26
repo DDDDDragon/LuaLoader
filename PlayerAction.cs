@@ -16,10 +16,10 @@ namespace LuaLoader
         public List<Combo> combos;
         public override void Initialize()
         {
-            LuaLoader.state.RegisterFunction("IsKeyUp", null, this.GetType().GetMethod("IsKeyUp"));
-            LuaLoader.state.RegisterFunction("IsKeyDown", null, this.GetType().GetMethod("IsKeyDown"));
-            actions = new List<Action>();
-            actions.Add(new Action("HeadGo"));
+            //LuaLoader.state.RegisterFunction("IsKeyUp", null, this.GetType().GetMethod("IsKeyUp"));
+            //LuaLoader.state.RegisterFunction("IsKeyDown", null, this.GetType().GetMethod("IsKeyDown"));
+            //actions = new List<Action>();
+            //actions.Add(new Action("HeadGo"));
             //foreach (var i in actions) i.init();
             base.Initialize();
         }
@@ -33,8 +33,8 @@ namespace LuaLoader
         }
         public override void ModifyDrawInfo(ref PlayerDrawSet drawInfo)
         {
-            LuaLoader.state["drawInfo"] = drawInfo;
-            actions[0].DoAction(1);
+            //LuaLoader.state["drawInfo"] = drawInfo;
+            //actions[0].DoAction(1);
             base.ModifyDrawInfo(ref drawInfo);
         }
     }

@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-	<Import Condition="Exists('..\tModLoader.targets')" Project="..\tModLoader.targets" />
-	<ItemGroup Condition="!Exists('..\tModLoader.targets')">
-		<Reference Include="Libraries\*.dll" Private="false" />
-	</ItemGroup>
+	<Import Project="..\tModLoader.targets" />
 	<PropertyGroup>
 		<AssemblyName>LuaLoader</AssemblyName>
 		<TargetFramework>net6.0</TargetFramework>

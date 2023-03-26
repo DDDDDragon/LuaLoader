@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
 namespace LuaLoader
 {
@@ -18,14 +19,27 @@ namespace LuaLoader
         public static Lua state = new Lua();
         public static List<Assembly> Assemblies = new List<Assembly>();
         public static ItemLuaLoader itemLoader = new ItemLuaLoader();
+        public static TextureLoader textureLoader = new TextureLoader();
         public override void Load()
         {
             Assemblies.Add(typeof(Vector2).Assembly);
 
             itemLoader.init();
+            textureLoader.init();
+            //var bytes = textureLoader.GetAllTexBytes();
+
             foreach(var item in itemLoader.items)
             {
-                
+                var luaItem = new LuaLoaderItem();
+                var entity = typeof(ModItem).GetProperties(BindingFlags.Public | BindingFlags.Instance).FirstOrDefault(t => t.Name == "Entity");
+                entity.GetSetMethod(true).Invoke(luaItem, new object[] { new Item() });
+                var disName = typeof(ModItem).GetProperty("DisplayName", BindingFlags.Public | BindingFlags.Instance);
+                disName.GetSetMethod(true).Invoke(luaItem, new object[] { LocalizationLoader.CreateTranslation(this, "ItemName." + item.name) });
+                luaItem.DisplayName.SetDefault(item.name);
+                luaItem.Item.DamageType = DamageClass.Melee;
+                state["item"] = luaItem.Item;
+                state.DoString($"SetDefault_{item.name}()");
+                AddContent(luaItem);
             }
 
             state.LoadCLRPackage();
@@ -52,6 +66,14 @@ namespace LuaLoader
                 }
             }
             state[name] = obj;
+        }
+    }
+    public class ILoader
+    {
+        public virtual string LoaderPath => "";
+        public virtual void init()
+        {
+            if (!Directory.Exists(LoaderPath)) Directory.CreateDirectory(LoaderPath);
         }
     }
 }
