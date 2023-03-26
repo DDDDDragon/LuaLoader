@@ -11,6 +11,8 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using System.Reflection.Emit;
+using Microsoft.CodeAnalysis.Differencing;
 
 namespace LuaLoader
 {
@@ -27,19 +29,28 @@ namespace LuaLoader
             itemLoader.init();
             textureLoader.init();
             //var bytes = textureLoader.GetAllTexBytes();
+            AssemblyName an = new AssemblyName("LuaLoad");
+            AssemblyBuilder ab = AssemblyBuilder.DefineDynamicAssembly(an, AssemblyBuilderAccess.RunAndCollect);
+            ModuleBuilder mb = ab.DefineDynamicModule(an.Name);
 
             foreach(var item in itemLoader.items)
             {
-                var luaItem = new LuaLoaderItem();
+                TypeBuilder builder = mb.DefineType(item.name, TypeAttributes.Public, typeof(LuaLoaderItem));
+                var luaItem = Activator.CreateInstance(builder.CreateType()) as LuaLoaderItem ;
                 var entity = typeof(ModItem).GetProperties(BindingFlags.Public | BindingFlags.Instance).FirstOrDefault(t => t.Name == "Entity");
                 entity.GetSetMethod(true).Invoke(luaItem, new object[] { new Item() });
                 var disName = typeof(ModItem).GetProperty("DisplayName", BindingFlags.Public | BindingFlags.Instance);
                 disName.GetSetMethod(true).Invoke(luaItem, new object[] { LocalizationLoader.CreateTranslation(this, "ItemName." + item.name) });
+                var tooltip = typeof(ModItem).GetProperty("Tooltip", BindingFlags.Public | BindingFlags.Instance);
+                tooltip.GetSetMethod(true).Invoke(luaItem, new object[] { LocalizationLoader.CreateTranslation(this, "ItemTooltip." + item.name) });
                 luaItem.DisplayName.SetDefault(item.name);
+                luaItem.Tooltip.SetDefault("dadadadadada");
                 luaItem.Item.DamageType = DamageClass.Melee;
                 state["item"] = luaItem.Item;
                 state.DoString($"SetDefault_{item.name}()");
-                AddContent(luaItem);
+                AddContent(Activator.CreateInstance(builder.CreateType()) as LuaLoaderItem);
+                var ins = typeof(ContentInstance<>).MakeGenericType(builder.CreateType()).GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
+                ins.GetSetMethod(true).Invoke(null, new object[] { luaItem });
             }
 
             state.LoadCLRPackage();

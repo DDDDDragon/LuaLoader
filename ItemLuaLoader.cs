@@ -86,10 +86,11 @@ namespace LuaLoader
                 return "LuaLoader/Textures/NULL";
             }
         }
-        public override void AutoStaticDefaults()
+        public override void UpdateInventory(Player player)
         {
-            //LuaLoader.textureLoader.SetTexture(Type, LuaLoader.textureLoader.GetTexture(Texture));
-            base.AutoStaticDefaults();
+            //Main.NewText(Tooltip.GetDefault());
+            Main.NewText(GetType().Name);
+            base.UpdateInventory(player);
         }
     }
 }
