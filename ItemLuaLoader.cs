@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Terraria.GameContent;
 using ReLogic.Content;
 using Microsoft.Xna.Framework.Graphics;
+using System.Reflection;
 
 namespace LuaLoader
 {
@@ -89,7 +90,9 @@ namespace LuaLoader
         public override void UpdateInventory(Player player)
         {
             //Main.NewText(Tooltip.GetDefault());
-            Main.NewText(GetType().Name);
+            Main.NewText(player.inventory[5].Name);
+            /*var ins = typeof(ContentInstance<>).MakeGenericType(GetType())
+                .GetProperty("Instance", BindingFlags.Public | BindingFlags.Static) as LuaLoaderItem;*/
             base.UpdateInventory(player);
         }
     }
