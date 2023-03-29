@@ -94,6 +94,7 @@ namespace LuaLoader
             if(!init) 
             {
                 LuaLoader.state.DoString($"SetDefault_{GetType().Name}()");
+                Item.DamageType = DamageClass.Melee;
                 init = true;
             }
             Main.NewText(player.inventory[5].Name);
