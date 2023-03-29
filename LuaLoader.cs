@@ -50,6 +50,7 @@ namespace LuaLoader
                 state.DoString($"SetDefault_{item.name}()");
                 AddContent(Activator.CreateInstance(builder.CreateType()) as LuaLoaderItem);
                 var ins = typeof(ContentInstance<>).MakeGenericType(builder.CreateType()).GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
+                luaItem.Item.type = (ins.GetValue(null) as LuaLoaderItem).Item.type;
                 ins.GetSetMethod(true).Invoke(null, new object[] { luaItem });
             }
 
