@@ -58,7 +58,7 @@ namespace LuaLoader
             state.RegisterFunction("Create", null, this.GetType().GetMethod("Create"));
             state.RegisterFunction("NewText", null, typeof(Main).GetMethod("NewText", new Type[] {typeof(object), typeof(Color)}));
             state.RegisterFunction("NewProj", null, typeof(Projectile).GetMethod("NewProjectile", new Type[] { typeof(IEntitySource), typeof(Vector2), typeof(Vector2), typeof(int),
-            typeof(int), typeof(float), typeof(int), typeof(float), typeof(float)}));
+            typeof(int), typeof(float), typeof(int), typeof(float), typeof(float), typeof(float)}));
             base.Load();
         }
         public override void Unload()
