@@ -78,6 +78,7 @@ namespace LuaLoader
     [Autoload(false)]
     public class LuaLoaderItem : ModItem
     {
+        public bool init = false;
         public string texturePath = ModLoader.ModPath + "LuaLoader\\Textures\\";
         public override string Texture
         {
@@ -89,6 +90,13 @@ namespace LuaLoader
         }
         public override void UpdateInventory(Player player)
         {
+            //Main.NewText(Tooltip.GetDefault());
+            if(!init) 
+            {
+                LuaLoader.state.DoString($"SetDefault_{GetType().Name}()");
+                init = true;
+            }
+            Main.NewText(player.inventory[5].Name);
             var ins = typeof(ContentInstance<>).MakeGenericType(GetType())
                 .GetProperty("Instance", BindingFlags.Public | BindingFlags.Static).GetValue(null) as LuaLoaderItem;
             inst = ins.Item;
