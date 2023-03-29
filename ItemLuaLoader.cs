@@ -91,8 +91,8 @@ namespace LuaLoader
         {
             //Main.NewText(Tooltip.GetDefault());
             Main.NewText(player.inventory[5].Name);
-            /*var ins = typeof(ContentInstance<>).MakeGenericType(GetType())
-                .GetProperty("Instance", BindingFlags.Public | BindingFlags.Static) as LuaLoaderItem;*/
+            var ins = typeof(ContentInstance<>).MakeGenericType(GetType())
+                .GetProperty("Instance", BindingFlags.Public | BindingFlags.Static).GetValue(null) as LuaLoaderItem;
             base.UpdateInventory(player);
         }
     }
