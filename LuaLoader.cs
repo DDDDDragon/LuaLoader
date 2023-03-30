@@ -19,6 +19,9 @@ namespace LuaLoader
     public class LuaLoader : Mod
     {
         public static Lua state = new Lua();
+        var itemLua = GetFileBytes("LuaLoader/lua/Item");
+        string str = Encoding.UTF8.GetString(itemLua);
+        state.DoString(str);
         public static List<Assembly> Assemblies = new List<Assembly>();
         public static ItemLuaLoader itemLoader = new ItemLuaLoader();
         public static TextureLoader textureLoader = new TextureLoader();
@@ -57,6 +60,7 @@ namespace LuaLoader
             state.LoadCLRPackage();
             state.State.Encoding = Encoding.UTF8;
             state.RegisterFunction("Create", null, this.GetType().GetMethod("Create"));
+            state.RegisterFunction("GetType", null, this.GetType().GetMethod("getType"));
             state.RegisterFunction("NewText", null, typeof(Main).GetMethod("NewText", new Type[] {typeof(object), typeof(Color)}));
             state.RegisterFunction("NewProj", null, typeof(Projectile).GetMethod("NewProjectile", new Type[] { typeof(IEntitySource), typeof(Vector2), typeof(Vector2), typeof(int),
             typeof(int), typeof(float), typeof(int), typeof(float), typeof(float), typeof(float)}));
@@ -78,6 +82,10 @@ namespace LuaLoader
                 }
             }
             state[name] = obj;
+        }
+        public static Type getType(object obj)
+        {
+            return obj.GetType();
         }
     }
     public class ILoader
