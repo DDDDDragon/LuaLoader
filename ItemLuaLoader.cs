@@ -111,11 +111,11 @@ namespace LuaLoader
                     $"rare：{item.rare}\n" +
                     $"type：{item.type}\n" +
                     $"LuaLoaderItemtype：{Type}\n" +
+                    $"damageType：{item.DamageType} \n" +
                     $"autoReuse：{item.autoReuse}\n";
                 spriteBatch.DrawString(FontAssets.MouseText.Value, text, Main.LocalPlayer.Center + new Vector2(200, -300) - Main.screenPosition, Color.Black);
-
             }
-            return base.PreDrawInInventory(spriteBatch, position, frame, drawColor, itemColor, origin, scale);
+            return true;
         }
     }
 }
