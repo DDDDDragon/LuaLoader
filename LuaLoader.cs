@@ -19,16 +19,14 @@ namespace LuaLoader
     public class LuaLoader : Mod
     {
         public static Lua state = new Lua();
-        var itemLua = GetFileBytes("LuaLoader/lua/Item");
-        string str = Encoding.UTF8.GetString(itemLua);
-        state.DoString(str);
         public static List<Assembly> Assemblies = new List<Assembly>();
         public static ItemLuaLoader itemLoader = new ItemLuaLoader();
         public static TextureLoader textureLoader = new TextureLoader();
         public override void Load()
         {
             Assemblies.Add(typeof(Vector2).Assembly);
-
+            var itemLua = GetFileBytes("lua/Item.lua");
+            state.DoString(Encoding.UTF8.GetString(itemLua));
             itemLoader.init();
             textureLoader.init();
             //var bytes = textureLoader.GetAllTexBytes();
