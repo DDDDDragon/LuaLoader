@@ -48,12 +48,7 @@ namespace LuaLoader
                 var entity = typeof(ModItem).GetProperties(BindingFlags.Public | BindingFlags.Instance).FirstOrDefault(t => t.Name == "Entity");
                 entity.GetSetMethod(true).Invoke(luaItem, new object[] { new Item() });
                 var disName = typeof(ModItem).GetProperty("DisplayName", BindingFlags.Public | BindingFlags.Instance);
-                /*disName.GetSetMethod(true).Invoke(luaItem, new object[] { LocalizationLoader.CreateTranslation(this, "ItemName." + item.name) });
-                var tooltip = typeof(ModItem).GetProperty("Tooltip", BindingFlags.Public | BindingFlags.Instance);
-                tooltip.GetSetMethod(true).Invoke(luaItem, new object[] { LocalizationLoader.CreateTranslation(this, "ItemTooltip." + item.name) });
-                luaItem.DisplayName.SetDefault(item.name);
-                luaItem.Tooltip.SetDefault("dadadadadada");*/
-                luaItem.Item.DamageType = DamageClass.Melee;
+                //disName.GetSetMethod(true).Invoke(luaItem, new object[] { LocalizationLoader.CreateTranslation(this, "ItemName." + item.name) });
                 state["item"] = luaItem.Item;
                 state.DoString($"SetDefault_{item.name}()");
                 AddContent(Activator.CreateInstance(builder.CreateType()) as LuaLoaderItem);
