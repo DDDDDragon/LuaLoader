@@ -1,5 +1,7 @@
 # LuaLoader
 
+测试请跳过如下步骤
+
 这是一个在terraria里使用lua的Demo mod，使用方法如下
 
 • 第一步：下载这个库的所有内容 并将附带的lua54.dll放至steam文件夹下的tModLoader/Libraries/Native/Windows目录下
