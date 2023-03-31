@@ -18,7 +18,7 @@ namespace LuaLoader
 {
     public class LuaLoader : Mod
     {
-        public static Lua state = new Lua();
+        public static Lua state;
         public static List<Assembly> Assemblies = new List<Assembly>();
         public static ItemLuaLoader itemLoader = new ItemLuaLoader();
         public static TextureLoader textureLoader = new TextureLoader();
@@ -27,6 +27,13 @@ namespace LuaLoader
             Assemblies.Add(typeof(Vector2).Assembly);
             var itemLua = GetFileBytes("lua/Item.lua");
             state.DoString(Encoding.UTF8.GetString(itemLua));
+            if(!File.Exists("Libraries/Native/Windows/lua54.dll"))
+            {
+                var file = File.Create("Libraries/Native/Windows/lua54.dll");
+                var dll = GetFileBytes("lua54.dll");
+                file.Write(dll, 0, dll.length);
+            }
+            state = new Lua();
             itemLoader.init();
             textureLoader.init();
             //var bytes = textureLoader.GetAllTexBytes();
