@@ -13,6 +13,7 @@ using System.Linq;
 using System.IO;
 using System.Reflection.Emit;
 using Microsoft.CodeAnalysis.Differencing;
+using static XPT.Core.Audio.MP3Sharp.Decoding.Decoder;
 
 namespace LuaLoader
 {
@@ -26,6 +27,7 @@ namespace LuaLoader
         public override void Load()
         {
             Assemblies.Add(typeof(Vector2).Assembly);
+            Assemblies.Add(typeof(ModItem).Assembly);
             
             if(!File.Exists("Libraries/Native/Windows/lua54.dll"))
             {
@@ -35,6 +37,10 @@ namespace LuaLoader
                 file.Close();
             }
             state = new Lua();
+            foreach(var i in GetType().GetMethods(BindingFlags.Static | BindingFlags.Public))
+            {
+                state.RegisterFunction(i.Name, null, i);
+            }
             var itemLua = GetFileBytes("lua/Item.lua");
             state.DoString(Encoding.UTF8.GetString(itemLua));
             itemLoader.init();
@@ -50,22 +56,23 @@ namespace LuaLoader
                 var luaItem = Activator.CreateInstance(builder.CreateType()) as LuaLoaderItem ;
                 var entity = typeof(ModItem).GetProperties(BindingFlags.Public | BindingFlags.Instance).FirstOrDefault(t => t.Name == "Entity");
                 entity.GetSetMethod(true).Invoke(luaItem, new object[] { new Item() });
-                var disName = typeof(ModItem).GetProperty("DisplayName", BindingFlags.Public | BindingFlags.Instance);
-                //disName.GetSetMethod(true).Invoke(luaItem, new object[] { LocalizationLoader.CreateTranslation(this, "ItemName." + item.name) });
+                luaItem.Item.DamageType = DamageClass.Melee;
                 state["item"] = luaItem.Item;
                 state.DoString($"SetDefault_{item.name}()");
                 AddContent(Activator.CreateInstance(builder.CreateType()) as LuaLoaderItem);
                 ItemTypes.Add(builder.CreateType());
                 var ins = typeof(ContentInstance<>).MakeGenericType(builder.CreateType()).GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
                 luaItem.Item.type = (ins.GetValue(null) as LuaLoaderItem).Item.type;
-                //ins.GetSetMethod(true).Invoke(null, new object[] { luaItem });
+                ins.GetSetMethod(true).Invoke(null, new object[] { luaItem });
             }
 
             state.LoadCLRPackage();
             state.State.Encoding = Encoding.UTF8;
-            state.RegisterFunction("Create", null, this.GetType().GetMethod("Create"));
-            state.RegisterFunction("GetType", null, this.GetType().GetMethod("getType"));
+            
+            //state.RegisterFunction("Create", null, GetType().GetMethod("Create"));
+           
             state.RegisterFunction("NewText", null, typeof(Main).GetMethod("NewText", new Type[] {typeof(object), typeof(Color)}));
+            //state.RegisterFunction("GetEnum", null, GetType().GetMethod("getEnum"));
             state.RegisterFunction("NewProj", null, typeof(Projectile).GetMethod("NewProjectile", new Type[] { typeof(IEntitySource), typeof(Vector2), typeof(Vector2), typeof(int),
             typeof(int), typeof(float), typeof(int), typeof(float), typeof(float), typeof(float)}));
             base.Load();
@@ -75,21 +82,25 @@ namespace LuaLoader
             state.Dispose();
             base.Unload();
         }
-        public static void Create(string type, string name, params object[] paras)
+        public static object Create(string type, params object[] paras)
         {
             var obj = new object();
-            foreach(var i in Assemblies)
+            foreach (var i in Assemblies)
             {
-                if(i.GetTypes().Where(t => t.Name == type).ToList().Count > 0)
+                if (i.GetTypes().Where(t => t.Name == type).ToList().Count > 0)
                 {
                     obj = Activator.CreateInstance(i.GetTypes().Where(t => t.Name == type).ToList()[0], paras);
                 }
             }
-            state[name] = obj;
+            return obj;
         }
         public static Type getType(object obj)
         {
             return obj.GetType();
+        }
+        public static Enum getEnum(string name, Enum obj)
+        {
+            return Enum.Parse(obj.GetType(), name) as Enum;
         }
     }
     public class ILoader

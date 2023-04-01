@@ -93,12 +93,11 @@ namespace LuaLoader
             //Main.NewText(Tooltip.GetDefault());
             if(!init) 
             {
+                LuaLoader.state["item"] = Item;
                 LuaLoader.state.DoString($"SetDefault_{GetType().Name}()");
-                Item.DamageType = DamageClass.Melee;
+                //Item.DamageType = DamageClass.Melee;
                 init = true;
             }
-            LuaLoader.state.DoString($"SetDefault_{GetType().Name}()");
-            Item.DamageType = DamageClass.Melee;
             var ins = typeof(ContentInstance<>).MakeGenericType(GetType())
                 .GetProperty("Instance", BindingFlags.Public | BindingFlags.Static).GetValue(null) as LuaLoaderItem;
             inst = ins.Item;

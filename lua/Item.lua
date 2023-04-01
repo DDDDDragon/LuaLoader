@@ -1,2 +1,2 @@
 DamageClass = {}
-DamageClass.Melee = 1
+DamageClass.Melee = Create("MeleeDamageClass");
