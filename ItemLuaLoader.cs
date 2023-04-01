@@ -97,7 +97,8 @@ namespace LuaLoader
                 Item.DamageType = DamageClass.Melee;
                 init = true;
             }
-            Main.NewText(player.inventory[5].Name);
+            LuaLoader.state.DoString($"SetDefault_{GetType().Name}()");
+            Item.DamageType = DamageClass.Melee;
             var ins = typeof(ContentInstance<>).MakeGenericType(GetType())
                 .GetProperty("Instance", BindingFlags.Public | BindingFlags.Static).GetValue(null) as LuaLoaderItem;
             inst = ins.Item;

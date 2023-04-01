@@ -22,18 +22,21 @@ namespace LuaLoader
         public static List<Assembly> Assemblies = new List<Assembly>();
         public static ItemLuaLoader itemLoader = new ItemLuaLoader();
         public static TextureLoader textureLoader = new TextureLoader();
+        public static List<Type> ItemTypes = new List<Type>();
         public override void Load()
         {
             Assemblies.Add(typeof(Vector2).Assembly);
-            var itemLua = GetFileBytes("lua/Item.lua");
-            state.DoString(Encoding.UTF8.GetString(itemLua));
+            
             if(!File.Exists("Libraries/Native/Windows/lua54.dll"))
             {
                 var file = File.Create("Libraries/Native/Windows/lua54.dll");
                 var dll = GetFileBytes("lua54.dll");
-                file.Write(dll, 0, dll.length);
+                file.Write(dll, 0, dll.Length);
+                file.Close();
             }
             state = new Lua();
+            var itemLua = GetFileBytes("lua/Item.lua");
+            state.DoString(Encoding.UTF8.GetString(itemLua));
             itemLoader.init();
             textureLoader.init();
             //var bytes = textureLoader.GetAllTexBytes();
@@ -52,9 +55,10 @@ namespace LuaLoader
                 state["item"] = luaItem.Item;
                 state.DoString($"SetDefault_{item.name}()");
                 AddContent(Activator.CreateInstance(builder.CreateType()) as LuaLoaderItem);
+                ItemTypes.Add(builder.CreateType());
                 var ins = typeof(ContentInstance<>).MakeGenericType(builder.CreateType()).GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
                 luaItem.Item.type = (ins.GetValue(null) as LuaLoaderItem).Item.type;
-                ins.GetSetMethod(true).Invoke(null, new object[] { luaItem });
+                //ins.GetSetMethod(true).Invoke(null, new object[] { luaItem });
             }
 
             state.LoadCLRPackage();
