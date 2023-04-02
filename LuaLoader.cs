@@ -133,15 +133,15 @@ namespace LuaLoader
                 var f = GetType().GetField("state", BindingFlags.Static | BindingFlags.Public);
                 il.Emit(OpCodes.Ldsfld, f);
                 il.Emit(OpCodes.Ldstr, $"{method}_{item.name}");
-                il.Emit(OpCodes.Callvirt, typeof(Lua).GetMethod("DoString", new Type[] { typeof(string), typeof(string)}));
+                il.Emit(OpCodes.Call, typeof(Lua).GetMethod("DoString", BindingFlags.Public | BindingFlags.Instance, new Type[] { typeof(string), typeof(string) }));
                 var i = 0;
                 while (i < target.GetParameters().Length + 1)
                 { 
                     il.Emit(OpCodes.Ldarg, i);
                     i++;
                 } 
-                il.Emit(OpCodes.Call, typeof(LuaLoaderItem).GetMethod(method, BindingFlags.Public));
-                luaItem.DefineMethodOverride(typeof(LuaLoaderItem).GetMethod(method), m);
+                il.Emit(OpCodes.Call, target);
+                luaItem.DefineMethodOverride(target, m);
             }
             return luaItem;
         }
