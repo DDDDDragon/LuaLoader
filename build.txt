@@ -1,4 +1,4 @@
 displayName = LuaLoader
 author = Mantodea
 version = 0.1
-dllReferences = KeraLua, NLua, LiteDB
+dllReferences = KeraLua,NLua,LiteDB,FontStashSharp.FNA,FontStashSharp.Base,StbImageSharp,FontStashSharp.Rasterizers.StbTrueTypeSharp,System.Numerics.Vectors,Cyotek.Drawing.BitmapFont,StbTrueTypeSharp

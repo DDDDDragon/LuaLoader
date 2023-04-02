@@ -13,4 +13,24 @@
 		<PackageReference Include="NLua" Version="1.6.2" />
 		<PackageReference Include="tModLoader.CodeAssist" Version="0.1.*" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Reference Include="Cyotek.Drawing.BitmapFont">
+	    <HintPath>lib\Cyotek.Drawing.BitmapFont.dll</HintPath>
+	  </Reference>
+	  <Reference Include="FontStashSharp.Base">
+	    <HintPath>lib\FontStashSharp.Base.dll</HintPath>
+	  </Reference>
+	  <Reference Include="FontStashSharp.FNA">
+	    <HintPath>lib\FontStashSharp.FNA.dll</HintPath>
+	  </Reference>
+	  <Reference Include="FontStashSharp.Rasterizers.StbTrueTypeSharp">
+	    <HintPath>lib\FontStashSharp.Rasterizers.StbTrueTypeSharp.dll</HintPath>
+	  </Reference>
+	  <Reference Include="StbImageSharp">
+	    <HintPath>lib\StbImageSharp.dll</HintPath>
+	  </Reference>
+	  <Reference Include="StbTrueTypeSharp">
+	    <HintPath>lib\StbTrueTypeSharp.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
 </Project>

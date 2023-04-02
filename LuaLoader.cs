@@ -7,13 +7,17 @@ using System.Reflection;
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using LuaLoader.UI;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Reflection.Emit;
-using Microsoft.CodeAnalysis.Differencing;
-using static XPT.Core.Audio.MP3Sharp.Decoding.Decoder;
+using LuaLoader.Utils.FontInfos;
+using LuaLoader.Utils;
+using FontStashSharp;
+using Steamworks;
+using MonoMod.Cil;
 
 namespace LuaLoader
 {
@@ -24,6 +28,44 @@ namespace LuaLoader
         public static ItemLuaLoader itemLoader = new ItemLuaLoader();
         public static TextureLoader textureLoader = new TextureLoader();
         public static List<Type> ItemTypes = new List<Type>();
+        public static LuaLoader Instance { get => ModContent.GetInstance<LuaLoader>(); }
+        public static LuaUISystem LuaUISystem
+        {
+            get
+            {
+                if (Instance.uiSystem == null)
+                    Instance.uiSystem = new LuaUISystem();
+                return Instance.uiSystem;
+            }
+        }
+        public const float DEFAULT_FONT_SIZE = 40f;
+        public static FontSystem DefaultFontSystem => FontManager["Fonts/SourceHanSansHWSC-VF.ttf"];
+        public static DynamicSpriteFont DefaultFont = DefaultFontSystem.GetFont(DEFAULT_FONT_SIZE);
+
+        private LuaUISystem uiSystem;
+
+        public static DynamicSpriteFontInfoManager DynamicSpriteFontInfoManager
+        {
+            get
+            {
+                if (Instance.infoManager == null)
+                    Instance.infoManager = new DynamicSpriteFontInfoManager();
+                return Instance.infoManager;
+            }
+        }
+
+        private DynamicSpriteFontInfoManager infoManager;
+        internal static FontManager FontManager
+        {
+            get
+            {
+                if (Instance._fontManager == null)
+                    Instance._fontManager = new FontManager();
+                return Instance._fontManager;
+            }
+        }
+
+        private FontManager _fontManager;
         public override void Load()
         {
             Assemblies.Add(typeof(Vector2).Assembly);
@@ -53,13 +95,17 @@ namespace LuaLoader
             foreach(var item in itemLoader.items)
             {
                 TypeBuilder builder = mb.DefineType(item.name, TypeAttributes.Public, typeof(LuaLoaderItem));
+                builder = LoadOverrideMethod(item, builder);
+
                 var luaItem = Activator.CreateInstance(builder.CreateType()) as LuaLoaderItem ;
                 var entity = typeof(ModItem).GetProperties(BindingFlags.Public | BindingFlags.Instance).FirstOrDefault(t => t.Name == "Entity");
                 entity.GetSetMethod(true).Invoke(luaItem, new object[] { new Item() });
                 luaItem.Item.DamageType = DamageClass.Melee;
+
                 state["item"] = luaItem.Item;
                 state.DoString($"SetDefault_{item.name}()");
                 AddContent(Activator.CreateInstance(builder.CreateType()) as LuaLoaderItem);
+
                 ItemTypes.Add(builder.CreateType());
                 var ins = typeof(ContentInstance<>).MakeGenericType(builder.CreateType()).GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
                 luaItem.Item.type = (ins.GetValue(null) as LuaLoaderItem).Item.type;
@@ -76,6 +122,38 @@ namespace LuaLoader
             state.RegisterFunction("NewProj", null, typeof(Projectile).GetMethod("NewProjectile", new Type[] { typeof(IEntitySource), typeof(Vector2), typeof(Vector2), typeof(int),
             typeof(int), typeof(float), typeof(int), typeof(float), typeof(float), typeof(float)}));
             base.Load();
+        }
+        public TypeBuilder LoadOverrideMethod(LuaItem item, TypeBuilder luaItem)
+        {
+            foreach(var method in item.overrideMethods)
+            {
+                var target = typeof(LuaLoaderItem).GetMethod(method);
+                var m = luaItem.DefineMethod(method, target.Attributes, CallingConventions.HasThis, target.ReturnType, ParaToType(target.GetParameters()));
+                var il = m.GetILGenerator();
+                var f = GetType().GetField("state", BindingFlags.Static | BindingFlags.Public);
+                il.Emit(OpCodes.Ldsfld, f);
+                il.Emit(OpCodes.Ldstr, $"{method}_{item.name}");
+                il.Emit(OpCodes.Callvirt, typeof(Lua).GetMethod("DoString", new Type[] { typeof(string), typeof(string)}));
+                var i = 0;
+                while (i < target.GetParameters().Length + 1)
+                { 
+                    il.Emit(OpCodes.Ldarg, i);
+                    i++;
+                } 
+                il.Emit(OpCodes.Call, typeof(LuaLoaderItem).GetMethod(method, BindingFlags.Public));
+                luaItem.DefineMethodOverride(typeof(LuaLoaderItem).GetMethod(method), m);
+            }
+            return luaItem;
+        }
+        public Type[] ParaToType(ParameterInfo[] paras)
+        {
+            Type[] types = new Type[paras.Length];
+            var list = paras.ToList();
+            foreach (var p in list)
+            {
+                types[list.IndexOf(p)] = p.ParameterType;
+            }
+            return types;
         }
         public override void Unload()
         {
@@ -110,5 +188,9 @@ namespace LuaLoader
         {
             if (!Directory.Exists(LoaderPath)) Directory.CreateDirectory(LoaderPath);
         }
+    }
+    public interface ILua
+    {
+
     }
 }

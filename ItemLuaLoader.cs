@@ -39,7 +39,9 @@ namespace LuaLoader
 
                 }
             }
-            items.Add(new LuaItem("testItem", "测试", ""));
+            var litem = new LuaItem("testItem", "测试", "");
+            litem.overrideMethods.Add("UpdateInventory");
+            items.Add(litem);
             LuaLoader.state.DoString(File.ReadAllText($"{LoaderPath}\\testItem.lua"));
         }
         public void reloadItemsLua()
@@ -67,12 +69,14 @@ namespace LuaLoader
         public string name;
         public string discription;
         public string lua;
+        public List<string> overrideMethods;
         public LuaItem() { }
         public LuaItem(string name, string discription, string lua)
         {
             this.name = name;
             this.discription = discription;
             this.lua = lua;
+            overrideMethods = new List<string>();
         }
     }
     [Autoload(false)]
