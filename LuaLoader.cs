@@ -141,7 +141,7 @@ namespace LuaLoader
                     i++;
                 } 
                 il.Emit(OpCodes.Call, target);
-                luaItem.DefineMethodOverride(target, m);
+                luaItem.DefineMethodOverride(m, target);
             }
             return luaItem;
         }
