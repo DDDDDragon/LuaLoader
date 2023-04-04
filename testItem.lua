@@ -10,3 +10,6 @@ function SetDefault_testItem()
 	item.rare = 2
 	item.autoReuse = true
 end
+function UpdateInventory_testItem()
+        NewText("hello override!")
+end
