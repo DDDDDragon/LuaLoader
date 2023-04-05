@@ -134,7 +134,7 @@ namespace LuaLoader
                 il.Emit(OpCodes.Ldsfld, f);
                 il.Emit(OpCodes.Ldstr, $"{method}_{item.name}()");
                 il.Emit(OpCodes.Ldstr, "chunk");
-                il.Emit(OpCodes.Call, typeof(Lua).GetMethod("DoString", BindingFlags.Public | BindingFlags.Instance, new Type[] { typeof(string), typeof(string) }));
+                il.Emit(OpCodes.Callvirt, typeof(Lua).GetMethod("DoString", BindingFlags.Public | BindingFlags.Instance, new Type[] { typeof(string), typeof(string) }));
                 var i = 0;
                 while (i < target.GetParameters().Length + 1)
                 { 
