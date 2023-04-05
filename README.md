@@ -1,7 +1,8 @@
 # LuaLoader
 
 
-这是一个在terraria里使用lua的Demo mod，当前正在测试 重载函数功能
+这是一个在terraria里使用lua的Demo mod，重载函数功能已经实现
+当前正在优化 重载函数功能
 
 • 第一步：下载这个库的所有内容 编译mod 出现缺少文件报错后将mod目录中的testItem.lua放至报错给出的路径
 • 第二步：重新编译mod 如有错误请联系 此乃人
