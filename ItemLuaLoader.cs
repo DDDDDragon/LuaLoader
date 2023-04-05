@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Graphics;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -40,9 +41,13 @@ namespace LuaLoader
                 }
             }
             var litem = new LuaItem("testItem", "测试", "");
-            litem.overrideMethods.Add("UpdateInventory");
+            var llua = File.ReadAllText($"{LoaderPath}\\testItem.lua");
+            //litem.overrideMethods.Add("UpdateInventory");
+            var reg = @"function[ ]*([a-zA-Z]*)_"
+            foreach(var match in Regex.Matches(llua, reg))
+			
             items.Add(litem);
-            LuaLoader.state.DoString(File.ReadAllText($"{LoaderPath}\\testItem.lua"));
+            LuaLoader.state.DoString();
         }
         public void reloadItemsLua()
         {
