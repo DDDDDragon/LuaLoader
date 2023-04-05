@@ -43,11 +43,11 @@ namespace LuaLoader
             var litem = new LuaItem("testItem", "测试", "");
             var llua = File.ReadAllText($"{LoaderPath}\\testItem.lua");
             //litem.overrideMethods.Add("UpdateInventory");
-            var reg = @"override function[ ]*([a-zA-Z]*)_"
+            var reg = "override function[ ]*([a-zA-Z]*)_"
             foreach(var match in Regex.Matches(llua, reg)) litem.overrideMethods.Add(match.Groups[1]);
-	    //llua = 
+	    llua = Regex.Replace(llua, "override[ ]*", "");
             items.Add(litem);
-            LuaLoader.state.DoString();
+            LuaLoader.state.DoString(llua);
         }
         public void reloadItemsLua()
         {
