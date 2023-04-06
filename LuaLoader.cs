@@ -125,8 +125,9 @@ namespace LuaLoader
         }
         public TypeBuilder LoadOverrideMethod(LuaItem item, TypeBuilder luaItem)
         {
-            foreach(var method in item.overrideMethods)
+            foreach(var met in item.overrideMethods)
             {
+                var method = met.Item1;
                 var target = typeof(LuaLoaderItem).GetMethod(method);
                 var m = luaItem.DefineMethod(method, target.Attributes, CallingConventions.HasThis, target.ReturnType, ParaToType(target.GetParameters()));
                 var il = m.GetILGenerator();
@@ -136,13 +137,17 @@ namespace LuaLoader
                 il.Emit(OpCodes.Ldstr, "chunk");
                 il.Emit(OpCodes.Callvirt, typeof(Lua).GetMethod("DoString", BindingFlags.Public | BindingFlags.Instance, new Type[] { typeof(string), typeof(string) }));
                 il.Emit(OpCodes.Pop);
-                var i = 0;
-                while (i < target.GetParameters().Length + 1)
-                { 
-                    il.Emit(OpCodes.Ldarg, i);
-                    i++;
-                } 
-                il.Emit(OpCodes.Call, target);
+                if(met.Item2)
+                {
+                    //判定是否有返回值
+                    var i = 0;
+                    while (i < target.GetParameters().Length + 1)
+                    { 
+                        il.Emit(OpCodes.Ldarg, i);
+                        i++;
+                    } 
+                    il.Emit(OpCodes.Call, target);
+                }
                 il.Emit(OpCodes.Nop);
                 il.Emit(OpCodes.Ret);
                 luaItem.DefineMethodOverride(m, target);
