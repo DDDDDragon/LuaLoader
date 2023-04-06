@@ -45,8 +45,8 @@ namespace LuaLoader
             //litem.overrideMethods.Add("UpdateInventory");
             var reg = "override function[ ]*([a-zA-Z]*)_"
             var reg2 = "override[ ]*nobase[ ]*function[ ]*([a-zA-Z]*)\\(";
-            foreach(var match in Regex.Matches(llua, reg)) litem.overrideMethods.Add(match.Groups[1]);
-            foreach(var match in Regex.Matches(llua, reg2)) litem.nobaseMethods.Add(match.Groups[1]);
+            foreach(var match in Regex.Matches(llua, reg)) litem.overrideMethods.Add(match.Groups[1], true);
+            foreach(var match in Regex.Matches(llua, reg2)) litem.overrideMethods.Add(match.Groups[1], false);
 	    llua = Regex.Replace(llua, "override[ ]*", "");
             llua = Regex.Replace(llua, "nobase[ ]*", "");
             items.Add(litem);
@@ -77,16 +77,14 @@ namespace LuaLoader
         public string name;
         public string discription;
         public string lua;
-        public List<string> overrideMethods;
-        public List<string> nobaseMethods;
+        public List<(string, bool)> overrideMethods;
         public LuaItem() { }
         public LuaItem(string name, string discription, string lua)
         {
             this.name = name;
             this.discription = discription;
             this.lua = lua;
-            overrideMethods = new List<string>();
-            nobaseMethods = new List<string();
+            overrideMethods = new List<(string, bool)>();
         }
     }
     [Autoload(false)]
