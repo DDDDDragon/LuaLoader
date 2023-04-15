@@ -5,6 +5,7 @@ using ReLogic.Graphics;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.IO;
+using System;
 using System.Reflection;
 using Terraria;
 using Terraria.GameContent;
@@ -16,6 +17,7 @@ namespace LuaLoader
     {
         public override string LoaderPath => ModLoader.ModPath + "\\LuaLoader\\Items";
         public List<LuaItem> items;
+        public List<Keyword> keywords;
         public void registerLuaFunc()
         {
             //LuaLoader.state.RegisterFunction();
@@ -24,9 +26,12 @@ namespace LuaLoader
         {
             base.init();
             items = new List<LuaItem>();
+            keywords = new List<Keyword>();
+            keywords.Add(new Keyword(new Regex("override[ ]*function[ ]*([a-zA-Z]*)_"), new Regex("^(?!\")override[ ]*")));
+            keywords.Add(new Keyword(new Regex("override[ ]*nobase[ ]*function[ ]*([a-zA-Z]*)\\("), new Regex("^(?!\")nobase[ ]*")));
             var db = new LiteDatabase($"{LoaderPath}\\Items.tdb");
-            var Items = db.GetCollection<LuaItem>().FindAll();
-            foreach (var item in Items)
+            var Items = db.GetCollection<LuaItem>("Items");
+            foreach (var item in Items.FindAll())
             {
                 if (item.name != "")
                 {
@@ -43,14 +48,15 @@ namespace LuaLoader
             var litem = new LuaItem("testItem", "测试", "");
             var llua = File.ReadAllText($"{LoaderPath}\\testItem.lua");
             //litem.overrideMethods.Add("UpdateInventory");
-            var reg = "override function[ ]*([a-zA-Z]*)_"
-            var reg2 = "override[ ]*nobase[ ]*function[ ]*([a-zA-Z]*)\\(";
-            foreach(var match in Regex.Matches(llua, reg)) litem.overrideMethods.Add((match.Groups[1], true));
-            foreach(var match in Regex.Matches(llua, reg2)) litem.overrideMethods.Add((match.Groups[1], false));
-	    llua = Regex.Replace(llua, "override[ ]*", "");
-            llua = Regex.Replace(llua, "nobase[ ]*", "");
+            foreach(var i in keywords)
+            {
+                foreach(Match match in i.Regex.Matches(llua)) litem.overrideMethods.Add((match.Groups[1].Value, true));
+                llua = i.Replace.Replace(llua, "");
+            }
             items.Add(litem);
+            LuaParser.parser(llua, "json", 4);
             LuaLoader.state.DoString(llua);
+            
         }
         public void reloadItemsLua()
         {
@@ -72,11 +78,16 @@ namespace LuaLoader
             }
         }
     }
-    public class LuaItem
+    public class LuaObj
+    {
+
+    }
+    public class LuaItem : LuaObj
     {
         public string name;
         public string discription;
         public string lua;
+        public int id;
         public List<(string, bool)> overrideMethods;
         public LuaItem() { }
         public LuaItem(string name, string discription, string lua)

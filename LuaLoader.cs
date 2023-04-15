@@ -18,6 +18,8 @@ using LuaLoader.Utils;
 using FontStashSharp;
 using Steamworks;
 using MonoMod.Cil;
+using Terraria.UI;
+using LuaLoader.UI.UIElement;
 
 namespace LuaLoader
 {
@@ -70,7 +72,7 @@ namespace LuaLoader
         {
             Assemblies.Add(typeof(Vector2).Assembly);
             Assemblies.Add(typeof(ModItem).Assembly);
-            
+            LuaParser.LoadKeywords();
             if(!File.Exists("Libraries/Native/Windows/lua54.dll"))
             {
                 var file = File.Create("Libraries/Native/Windows/lua54.dll");
@@ -201,5 +203,42 @@ namespace LuaLoader
     public interface ILua
     {
 
+    }
+    public class UISystem : ModSystem, ILua
+    {
+        private Point ScreenSize;
+        public override void Load()
+        {
+            base.Load();
+            LuaLoader.LuaUISystem.Load();
+            LuaLoader.LuaUISystem.Register(new CodeBox());
+        }
+        public override void UpdateUI(GameTime gameTime)
+        {
+            base.UpdateUI(gameTime);
+            if (ScreenSize != Main.ScreenSize)
+            {
+                ScreenSize = Main.ScreenSize;
+                LuaLoader.LuaUISystem.Calculation();
+            }
+            LuaLoader.LuaUISystem.Update(gameTime);
+        }
+        public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
+        {
+            base.ModifyInterfaceLayers(layers);
+            int mouseTextIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Mouse Text"));
+            if (mouseTextIndex != -1)
+            {
+                layers.Insert(mouseTextIndex, new LegacyGameInterfaceLayer(
+                    "OdeMod: Lua UI System",
+                    delegate
+                    {
+                        LuaLoader.LuaUISystem.Draw(Main.spriteBatch);
+                        return true;
+                    },
+                    InterfaceScaleType.UI)
+                );
+            }
+        }
     }
 }

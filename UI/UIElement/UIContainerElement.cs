@@ -15,6 +15,11 @@ namespace LuaLoader.UI.UIElement
         public override void OnInitialization()
         {
             base.OnInitialization();
+            var editor = new CodeEditor();
+            editor.CanDrag = true;
+            editor.Info.CanBeInteract = true;
+
+            Register(editor);
             Info.Width = new PositionStyle(0f, 1f);
             Info.Height = new PositionStyle(0f, 1f);
             Info.CanBeInteract = false;
@@ -28,5 +33,9 @@ namespace LuaLoader.UI.UIElement
                     LuaLoader.LuaUISystem.SetContainerTop(i.Key);
             Calculation();
         }
+    }
+    public class CodeBox : UIContainerElement
+    {
+        public override string Name => "CodeBox";
     }
 }

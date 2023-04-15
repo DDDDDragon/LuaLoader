@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Reflection;
+using LuaLoader.UI.UIElement;
 
 namespace LuaLoader
 {
@@ -41,6 +42,8 @@ namespace LuaLoader
 		}
 		public override bool CanUseItem(Player player)
 		{
+
+			LuaLoader.LuaUISystem.Elements["CodeBox"].Show();
             if (File.Exists("C:\\Users\\ASUS\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\lua.lua"))
 			{
 				string str = File.ReadAllText("C:\\Users\\ASUS\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\lua.lua", Encoding.UTF8);
