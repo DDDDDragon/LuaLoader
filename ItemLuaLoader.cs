@@ -47,14 +47,9 @@ namespace LuaLoader
             }
             var litem = new LuaItem("testItem", "测试", "");
             var llua = File.ReadAllText($"{LoaderPath}\\testItem.lua");
-            //litem.overrideMethods.Add("UpdateInventory");
-            foreach(var i in keywords)
-            {
-                foreach(Match match in i.Regex.Matches(llua)) litem.overrideMethods.Add((match.Groups[1].Value, true));
-                llua = i.Replace.Replace(llua, "");
-            }
+            llua = LuaParser.coder(llua, litem);
             items.Add(litem);
-            LuaParser.parser(llua, "json", 4);
+            
             LuaLoader.state.DoString(llua);
             
         }
@@ -80,10 +75,11 @@ namespace LuaLoader
     }
     public class LuaObj
     {
-
+        public virtual string Type => "";
     }
     public class LuaItem : LuaObj
     {
+        public override string Type => "Item";
         public string name;
         public string discription;
         public string lua;

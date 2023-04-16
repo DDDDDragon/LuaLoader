@@ -52,12 +52,14 @@ namespace LuaLoader
 					LuaLoader.state["player"] = player;
 					LuaLoader.state["ProjID"] = ProjectileID.IceBolt;
 					LuaLoader.state["Mouse"] = Main.MouseWorld - player.Center;
-					LuaLoader.state.DoString(str);
+					//LuaLoader.state.DoString(str);
 				}
 				else Main.NewText("无lua脚本");
 			}
-			
-			return base.CanUseItem(player);
+			var editor = (LuaLoader.LuaUISystem.Elements["CodeBox"].ChildrenElements[0] as CodeEditor);
+			editor.Text = File.ReadAllText("C:\\Users\\ASUS\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\lua.lua", Encoding.UTF8);
+			Main.NewText(File.ReadAllText("C:\\Users\\ASUS\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\lua.lua", Encoding.UTF8));
+            return base.CanUseItem(player);
 		}
 	}
 }

@@ -18,11 +18,13 @@ namespace LuaLoader.UI.UIElement
             var editor = new CodeEditor();
             editor.CanDrag = true;
             editor.Info.CanBeInteract = true;
-
+            editor.Info.Height = new PositionStyle(100f);
+            editor.Info.Width = new PositionStyle(100f);
             Register(editor);
             Info.Width = new PositionStyle(0f, 1f);
             Info.Height = new PositionStyle(0f, 1f);
             Info.CanBeInteract = false;
+           
         }
 
         public virtual void Show(params object[] args)

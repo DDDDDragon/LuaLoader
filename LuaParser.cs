@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Terraria;
 using Terraria.IO;
+using Humanizer;
 
 namespace LuaLoader
 {
@@ -172,6 +173,7 @@ namespace LuaLoader
             var errors = new List<error>();
             var cur = 0;
             var rootNode = new node("Program", 0, int.Parse(tokens[tokens.Count - 1].Value));
+            rootNode.Infos.Add(lua);
             (string str, node program) ret = ("", new node());
             while (cur < tokens.Count)
             {
@@ -184,10 +186,13 @@ namespace LuaLoader
                     case "function":
                         var func = FuncState(ref cur, ref tokens, ref errors);
                         rootNode.Body.Value.Add(func);
+                        cur++;
+                        cur = ignoreSpace(cur, tokens);
                         break;
                     case "EOF":
                         if (type == "json") ret.str = JsonConvert.SerializeObject(rootNode);
                         else if (type == "node") ret.program = rootNode;
+                        cur++;
                         break;
                     default:
                         if (AdditionalKeywords.ContainsKey(tokens[cur].Type))
@@ -196,14 +201,48 @@ namespace LuaLoader
                             rootNode.Body.Value.Add(node);
                         }
                         else errors.Add(new error(tokens[cur].Line, tokens[cur].StartPos, "未实现的关键字"));
+                        cur++;
+                        cur = ignoreSpace(cur, tokens);
                         break;
                 }
             }
             return ret;
         }
-        public static string coder((string str, node program) AST)
+        public static string coder((string str, node program) AST, LuaObj obj)
         {
-            return "";
+            var lua = AST.program.Infos[0];
+            switch(obj.Type)
+            {
+                case "Item":
+                    var item = obj as LuaItem;
+                    foreach (var node in AST.program.Body.Value)
+                    {
+                        if (node.Type == "FunctionDeclaration")
+                        {
+                            var func = node as FuncNode;
+                            if (func.KeyWords.Contains("override"))
+                            {
+                                item.overrideMethods.Add((func.ID.Name.Replace("_" + item.name, ""), true));
+                                var reg = new Regex("override[ ]*(function[ ]*" + func.ID.Name + ")");
+                                lua = reg.Replace(lua, "$1");
+                            }
+                            if(func.KeyWords.Contains("nobase"))
+                            {
+                                item.overrideMethods.Add((func.ID.Name, false));
+                                var reg = new Regex("override[ ]*nobase[ ]*(function[ ]*" + func.ID.Name + ")");
+                                lua = reg.Replace(lua, "$1");
+                            }
+                        }
+                    }
+                    break;
+            }
+            
+            return lua;
+        }
+        public static string coder(string lua, LuaObj obj)
+        {
+            var AST = parser(lua, "node", 4);
+            return coder(AST, obj);
         }
         public static int GetPreLen(int cur, List<token> tokens, int tab = 4)
         {
@@ -222,8 +261,9 @@ namespace LuaLoader
             var tabs = 0;
             while (tokens[cur].Value != "\n")
             {
-                //Console.WriteLine(value);
+                Console.WriteLine(tokens[cur].Value);
                 cur--;
+                if (cur == -1) return 0;
             }
             cur++;
             while (tokens[cur].Value == "\t" || tokens[cur].Value == "*" + tabs.ToString())
@@ -264,7 +304,7 @@ namespace LuaLoader
         {
             var len = GetPreLen(cur, tokens);
             if(funcTabs == 0) funcTabs = GetPreTabs(cur, tokens);
-            var node = new FuncNode("FunctionDeclaration", len + 1, 0);
+            var node = new FuncNode(len + 1, 0);
             cur++;
             cur = ignoreSpace(cur, tokens);
             var id = new IdentifierNode();
@@ -304,7 +344,8 @@ namespace LuaLoader
                 else if (tokens[cur].Value == "\n") errors.Add(new error(tokens[cur].Line, tokens[cur].StartPos, "方法未实现"));
             }
             var body = new List<node>();
-            while((tokens[cur].Value == "\t" || new Regex(" \\*[0-9]").IsMatch(tokens[cur].Value) || GetPreTabs(cur, tokens, tab) > funcTabs && cur < tokens.Count))
+            //(tokens[cur].Value == "\t" || new Regex(" \\*[0-9]").IsMatch(tokens[cur].Value) || GetPreTabs(cur, tokens, tab) > funcTabs && cur < tokens.Count)
+            while (!(tokens[cur].Value == "end" && GetPreTabs(cur, tokens) == funcTabs))
             {
                 switch(tokens[cur].Type)
                 {
@@ -328,7 +369,7 @@ namespace LuaLoader
         }
         public static int ignoreSpace(int cur, List<token> tokens)
         {
-            if (new Regex(" \\*[0-9]").IsMatch((tokens[cur].Value))) cur++;
+            while (tokens[cur].Type == "WhiteSpace") cur++;
             return cur;
         }
     }
@@ -352,6 +393,7 @@ namespace LuaLoader
         public NodeBody Body;
         public int StartPos;
         public int EndPos;
+        public List<string> Infos = new List<string>();
         public node() { }
         public node(string type, int startPos, int endPos)
         {
@@ -417,12 +459,15 @@ namespace LuaLoader
         public IdentifierNode ID;
         public List<string> KeyWords;
         public FuncNode() {
+            Type = "FunctionDeclaration";
             Parameters = new List<IdentifierNode>();
             KeyWords = new List<string>();
+            Body = new NodeBody();
         }
-        public FuncNode(string type, int startPos, int endPos)
+        public FuncNode(int startPos, int endPos)
         {
-            Type = type;
+            Type = "FunctionDeclaration";
+            Body = new NodeBody();
             Parameters = new List<IdentifierNode>();
             KeyWords = new List<string>();
             StartPos = startPos;

@@ -134,6 +134,7 @@ namespace LuaLoader
                 var m = luaItem.DefineMethod(method, target.Attributes, CallingConventions.HasThis, target.ReturnType, ParaToType(target.GetParameters()));
                 var il = m.GetILGenerator();
                 var f = GetType().GetField("state", BindingFlags.Static | BindingFlags.Public);
+                var getItem = typeof(LuaLoaderItem).GetMethod("GetRETVAL");
                 il.Emit(OpCodes.Ldsfld, f);
                 il.Emit(OpCodes.Ldstr, $"{method}_{item.name}()");
                 il.Emit(OpCodes.Ldstr, "chunk");
@@ -141,17 +142,24 @@ namespace LuaLoader
                 il.Emit(OpCodes.Pop);
                 if(met.Item2)
                 {
-                    //判定是否有返回值
                     var i = 0;
                     while (i < target.GetParameters().Length + 1)
-                    { 
+                    {
                         il.Emit(OpCodes.Ldarg, i);
                         i++;
-                    } 
+                    }
                     il.Emit(OpCodes.Call, target);
+                    il.Emit(OpCodes.Nop);
+                    //判定是否有返回值
+                    if (target.ReturnType != typeof(void))
+                    {
+                        il.Emit(OpCodes.Callvirt, getItem);
+                        il.Emit(OpCodes.Stloc_0);
+                        il.Emit(OpCodes.Ldloc_0);
+                    }
+                    il.Emit(OpCodes.Ret);
                 }
-                il.Emit(OpCodes.Nop);
-                il.Emit(OpCodes.Ret);
+                
                 luaItem.DefineMethodOverride(m, target);
             }
             return luaItem;
@@ -165,6 +173,10 @@ namespace LuaLoader
                 types[list.IndexOf(p)] = p.ParameterType;
             }
             return types;
+        }
+        public static object GetRETVAL()
+        {
+            return state["RETVAL"];
         }
         public override void Unload()
         {
